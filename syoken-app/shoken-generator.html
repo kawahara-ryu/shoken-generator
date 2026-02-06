@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所見10パターン生成システム - CYBER EDITION</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a1a1a 100%);
+            color: #00ffff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* サイバーパンクグリッド背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ヘッダー */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: headerShine 3s infinite;
+        }
+
+        @keyframes headerShine {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 満月 */
+        .moon {
+            position: fixed;
+            top: -140px;
+            right: -140px;
+            width: 470px;
+            height: 470px;
+            background-image: url('moon_complete.png');
+            background-size: 120%;
+            background-position: center;
+            border-radius: 50%;
+            box-shadow:
+                0 0 80px rgba(255, 223, 0, 0.5),
+                0 0 120px rgba(255, 215, 0, 0.3),
+                0 0 160px rgba(255, 140, 0, 0.2);
+            z-index: 0;
+        }
+
+        @keyframes moonGlow {
+
+            0%,
+            100% {
+                box-shadow:
+                    0 0 80px rgba(255, 223, 0, 0.5),
+                    0 0 120px rgba(255, 215, 0, 0.3),
+                    0 0 160px rgba(255, 140, 0, 0.2);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 100px rgba(255, 223, 0, 0.6),
+                    0 0 140px rgba(255, 215, 0, 0.4),
+                    0 0 180px rgba(255, 140, 0, 0.3);
+            }
+        }
+
+
+
+        /* 猫ナビゲーター */
+        .cat-navigator {
+            position: fixed;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            width: 180px;
+            height: 180px;
+            background: url('cyber_cat_navigator.png') center/cover no-repeat;
+            border: 3px solid #ff00ff;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.4);
+            animation: catFloat 3s ease-in-out infinite;
+            z-index: 1000;
+            cursor: move;
+            transition: box-shadow 0.3s;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .cat-navigator.dragging {
+            animation: none;
+            cursor: grabbing;
+        }
+
+        .cat-navigator::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+            animation: catGlow 2s infinite;
+        }
+
+        @keyframes catGlow {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(180deg);
+            }
+        }
+
+        .cat-navigator:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 50px rgba(255, 0, 255, 1), 0 0 80px rgba(0, 255, 255, 0.6);
+        }
+
+        @keyframes catFloat {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+
+        .cat-message {
+            position: fixed;
+            bottom: 200px;
+            right: 30px;
+            max-width: 300px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #ff00ff;
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+            font-size: 0.9em;
+            display: none;
+            z-index: 999;
+            animation: messageAppear 0.3s;
+        }
+
+        .cat-message.show {
+            display: block;
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 選択エリア */
+        .selection-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .select-group {
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .select-group:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+            transform: translateY(-5px);
+        }
+
+        .select-group label {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1em;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .select-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 5px;
+            color: #00ffff;
+            font-size: 1em;
+            font-family: 'Noto Sans JP', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .select-group select:hover {
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+
+        .select-group select:focus {
+            outline: none;
+            border-color: #ffff00;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.6);
+        }
+
+        .select-group option {
+            background: #0a0a0a;
+            color: #00ffff;
+        }
+
+        /* 生成ボタンエリア */
+        .generate-area {
+            position: relative;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 生成ボタン */
+        .generate-btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 30px auto;
+            padding: 20px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #0a0a0a;
+            background: linear-gradient(135deg, #00ffff 0%, #ff00ff 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .generate-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .generate-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(255, 0, 255, 1);
+        }
+
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+
+        .generate-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 結果エリア */
+        .results-area {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .results-area.show {
+            display: block;
+            animation: resultsAppear 0.5s;
+        }
+
+        @keyframes resultsAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-item {
+            background: rgba(10, 10, 10, 0.9);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            transform: translateX(5px);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        .copy-btn {
+            padding: 8px 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+            color: #0a0a0a;
+            background: linear-gradient(135deg, #00ff00 0%, #00ffff 100%);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #ffff00 0%, #ff00ff 100%);
+        }
+
+        .result-text {
+            color: #00ffff;
+            line-height: 1.8;
+            font-size: 1em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .selection-area {
+                grid-template-columns: 1fr;
+            }
+
+            .cat-navigator {
+                width: 120px;
+                height: 120px;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .cat-message {
+                bottom: 140px;
+                right: 20px;
+                max-width: 250px;
+            }
+        }
+
+        /* ローディングアニメーション */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            animation: loadingPulse 1.5s infinite;
+        }
+
+        @keyframes loadingPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* フッター */
+        footer {
+            text-align: right;
+            padding: 40px 20px 20px;
+            margin-top: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .copyright {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75em;
+            color: #888888;
+            opacity: 0.9;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 満月 -->
+    <div class="moon"></div>
+
+    <div class="container">
+        <header>
+            <h1>しょけんちゃんジェネレーター</h1>
+            <p class="subtitle">CYBER EDITION - Ver 2.0</p>
+        </header>
+
+        <div class="selection-area">
+            <div class="select-group">
+                <label for="grade">学年</label>
+                <select id="grade">
+                    <option value="">選択してください</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label for="learning">学習態度</label>
+                <select id="learning">
+                    <option value="">選択してください</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label for="personality">性格</label>
+                <select id="personality">
+                    <option value="">選択してください</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label for="lifestyle">生活態度</label>
+                <select id="lifestyle">
+                    <option value="">選択してください</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label for="activities">活動</label>
+                <select id="activities">
+                    <option value="">選択してください</option>
+                </select>
+            </div>
+
+            <div class="select-group" id="career-group" style="display: none;">
+                <label for="career">進路</label>
+                <select id="career">
+                    <option value="">選択してください</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="generate-area">
+            <button class="generate-btn" id="generateBtn">
+                <span>生成開始</span>
+            </button>
+
+            <!-- 猫ナビゲーター -->
+            <div class="cat-navigator" id="catNavigator"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <p class="loading-text">生成中...</p>
+        </div>
+
+        <div class="results-area" id="resultsArea">
+            <h2 class="results-title">生成された所見（10パターン）</h2>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <div class="cat-message" id="catMessage"></div>
+
+    <!-- フッター -->
+    <footer>
+        <p class="copyright">© 2026 kawahara</p>
+    </footer>
+
+    <script>
+        // JSONデータ
+        const data = {
+            "grades": ["第1学年", "第2学年", "第3学年"],
+            "learning": [
+                "真面目・コツコツ型",
+                "苦手だが意欲あり",
+                "特定科目に強い",
+                "試験前集中型",
+                "課題提出が課題",
+                "文武両道型"
+            ],
+            "personality": [
+                "明るく社交的",
+                "控えめだが誠実",
+                "リーダーシップ発揮",
+                "協調性が高い",
+                "独自の感性を持つ",
+                "温和で冷静"
+            ],
+            "lifestyle": [
+                "勉強は苦手だが行事は頑張る",
+                "清掃や雑務を厭わない",
+                "欠席がちだが登校時は意欲的",
+                "規律を重んじる",
+                "行事の裏方担当"
+            ],
+            "activities": [
+                "部活動一筋（運動部）",
+                "部活動一筋（文化部）",
+                "マネージャーとして貢献",
+                "学外活動に注力",
+                "部活動未所属"
+            ],
+            "career_3rd": [
+                "四年制大学（文系）",
+                "四年制大学（理系）",
+                "四年制大学（看護・医療系）",
+                "短期大学・専門学校",
+                "就職・公務員志望"
+            ]
+        };
+
+        // 選択肢を設定
+        function populateSelects() {
+            const gradeSelect = document.getElementById('grade');
+            const learningSelect = document.getElementById('learning');
+            const personalitySelect = document.getElementById('personality');
+            const lifestyleSelect = document.getElementById('lifestyle');
+            const activitiesSelect = document.getElementById('activities');
+            const careerSelect = document.getElementById('career');
+
+            data.grades.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                gradeSelect.appendChild(option);
+            });
+
+            data.learning.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                learningSelect.appendChild(option);
+            });
+
+            data.personality.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                personalitySelect.appendChild(option);
+            });
+
+            data.lifestyle.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                lifestyleSelect.appendChild(option);
+            });
+
+            data.activities.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                activitiesSelect.appendChild(option);
+            });
+
+            data.career_3rd.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                careerSelect.appendChild(option);
+            });
+        }
+
+        // 学年選択時の処理
+        document.getElementById('grade').addEventListener('change', function () {
+            const careerGroup = document.getElementById('career-group');
+            if (this.value === '第3学年') {
+                careerGroup.style.display = 'block';
+                showCatMessage('ふん、3年生なら進路も選びなさいよね...！');
+            } else {
+                careerGroup.style.display = 'none';
+            }
+        });
+
+        // 猫メッセージ表示
+        function showCatMessage(message) {
+            const catMessage = document.getElementById('catMessage');
+            catMessage.textContent = message;
+            catMessage.classList.add('show');
+            setTimeout(() => {
+                catMessage.classList.remove('show');
+            }, 3000);
+        }
+
+        // 猫クリック
+        document.getElementById('catNavigator').addEventListener('click', function () {
+            const messages = [
+                'べ、別にあんたのために作ったんじゃないんだからね！',
+                '早く選択しなさいよ...時間がもったいないわ',
+                'ちゃんと全部選んでから生成ボタン押すのよ！',
+                'まあ...悪くない選択ね（小声）',
+                'ふん、頑張ってるじゃない...認めてあげるわ'
+            ];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            showCatMessage(randomMessage);
+        });
+
+        // 所見生成ロジック
+        function generateShoken(selections) {
+            const patterns = [];
+            const { grade, learning, personality, lifestyle, activities, career } = selections;
+
+            // 10パターン生成
+            for (let i = 0; i < 10; i++) {
+                let shoken = '';
+                const lines = [];
+
+                // パターンごとに異なる構成で生成
+                switch (i % 5) {
+                    case 0: // 学習→性格→活動
+                        if (learning === '真面目・コツコツ型') {
+                            lines.push('・日々の学習に真摯に取り組み、着実に学力を積み上げている。');
+                        } else if (learning === '苦手だが意欲あり') {
+                            lines.push('・学習に苦手意識を持ちながらも、諦めずに努力を続ける姿勢が見られる。');
+                        } else if (learning === '特定科目に強い') {
+                            lines.push('・得意科目において優れた理解力を発揮し、高い成果を上げている。');
+                        } else if (learning === '試験前集中型') {
+                            lines.push('・試験前には集中力を発揮し、計画的に学習に取り組む様子が見られる。');
+                        } else if (learning === '課題提出が課題') {
+                            lines.push('・課題提出に課題があるものの、学習内容への理解は深まりつつある。');
+                        } else if (learning === '文武両道型') {
+                            lines.push('・学習と部活動の両立を図り、バランスの取れた学校生活を送っている。');
+                        }
+
+                        if (personality === '明るく社交的') {
+                            lines.push('・明るく社交的な性格で、クラスの雰囲気作りに貢献している。');
+                        } else if (personality === '控えめだが誠実') {
+                            lines.push('・控えめながらも誠実な人柄で、周囲から信頼を得ている。');
+                        } else if (personality === 'リーダーシップ発揮') {
+                            lines.push('・リーダーシップを発揮し、集団をまとめる力を持っている。');
+                        } else if (personality === '協調性が高い') {
+                            lines.push('・高い協調性を持ち、グループ活動において円滑な関係を築いている。');
+                        } else if (personality === '独自の感性を持つ') {
+                            lines.push('・独自の感性を持ち、物事を多角的に捉える視点を持っている。');
+                        } else if (personality === '温和で冷静') {
+                            lines.push('・温和で冷静な性格で、落ち着いた雰囲気を周囲に与えている。');
+                        }
+
+                        if (activities === '部活動一筋（運動部）') {
+                            lines.push('・運動部活動に熱心に取り組み、技術向上と体力増進に努めている。');
+                        } else if (activities === '部活動一筋（文化部）') {
+                            lines.push('・文化部活動に熱心に取り組み、専門的な技能を磨いている。');
+                        } else if (activities === 'マネージャーとして貢献') {
+                            lines.push('・マネージャーとして部活動を支え、チームに貢献している。');
+                        } else if (activities === '学外活動に注力') {
+                            lines.push('・学外活動に積極的に参加し、幅広い経験を積んでいる。');
+                        } else if (activities === '部活動未所属') {
+                            lines.push('・部活動には所属していないが、自己の興味関心を追求している。');
+                        }
+
+                        if (grade === '第3学年' && career) {
+                            if (career === '四年制大学（文系）') {
+                                lines.push('・文系四年制大学への進学を目指し、計画的に学習を進めている。');
+                            } else if (career === '四年制大学（理系）') {
+                                lines.push('・理系四年制大学への進学を目指し、理数科目の学力向上に努めている。');
+                            } else if (career === '四年制大学（看護・医療系）') {
+                                lines.push('・看護・医療系大学への進学を目指し、専門分野への関心を深めている。');
+                            } else if (career === '短期大学・専門学校') {
+                                lines.push('・短期大学・専門学校への進学を目指し、実践的な技能習得に意欲的である。');
+                            } else if (career === '就職・公務員志望') {
+                                lines.push('・就職・公務員試験に向けて、計画的に準備を進めている。');
+                            }
+                        }
+
+                        if (lifestyle === '勉強は苦手だが行事は頑張る') {
+                            lines.push('・学校行事には積極的に参加し、クラスの一員として活躍している。');
+                        } else if (lifestyle === '清掃や雑務を厭わない') {
+                            lines.push('・清掃や雑務を厭わず、責任感を持って取り組む姿勢が見られる。');
+                        } else if (lifestyle === '欠席がちだが登校時は意欲的') {
+                            lines.push('・登校時には意欲的に活動に参加し、前向きな姿勢を見せている。');
+                        } else if (lifestyle === '規律を重んじる') {
+                            lines.push('・規律を重んじ、模範的な学校生活を送っている。');
+                        } else if (lifestyle === '行事の裏方担当') {
+                            lines.push('・学校行事では裏方として活動を支え、縁の下の力持ちとして貢献している。');
+                        }
+                        break;
+
+                    case 1: // 性格→活動→学習
+                        if (personality === '明るく社交的') {
+                            lines.push('・明るく社交的な性格で、多くの友人と良好な関係を築いている。');
+                        } else if (personality === '控えめだが誠実') {
+                            lines.push('・控えめながらも誠実に物事に向き合い、着実に成長している。');
+                        } else if (personality === 'リーダーシップ発揮') {
+                            lines.push('・優れたリーダーシップを発揮し、周囲を牽引する力を持っている。');
+                        } else if (personality === '協調性が高い') {
+                            lines.push('・協調性が高く、チームワークを大切にする姿勢が見られる。');
+                        } else if (personality === '独自の感性を持つ') {
+                            lines.push('・独自の感性を持ち、創造的な発想で課題に取り組んでいる。');
+                        } else if (personality === '温和で冷静') {
+                            lines.push('・温和で冷静な判断力を持ち、周囲に安心感を与えている。');
+                        }
+
+                        if (activities === '部活動一筋（運動部）') {
+                            lines.push('・運動部活動において継続的な努力を重ね、着実に実力を向上させている。');
+                        } else if (activities === '部活動一筋（文化部）') {
+                            lines.push('・文化部活動において熱心に活動し、専門性を高めている。');
+                        } else if (activities === 'マネージャーとして貢献') {
+                            lines.push('・マネージャーとして献身的に活動し、部員を支えている。');
+                        } else if (activities === '学外活動に注力') {
+                            lines.push('・学外での活動に積極的に取り組み、多様な経験を積んでいる。');
+                        } else if (activities === '部活動未所属') {
+                            lines.push('・部活動以外の分野で自己の可能性を探求している。');
+                        }
+
+                        if (learning === '真面目・コツコツ型') {
+                            lines.push('・授業に真面目に取り組み、コツコツと学力を向上させている。');
+                        } else if (learning === '苦手だが意欲あり') {
+                            lines.push('・苦手科目にも粘り強く取り組み、克服しようとする意欲が見られる。');
+                        } else if (learning === '特定科目に強い') {
+                            lines.push('・特定科目において優れた成績を収め、さらなる向上を目指している。');
+                        } else if (learning === '試験前集中型') {
+                            lines.push('・試験に向けて計画的に学習し、効率的に成果を上げている。');
+                        } else if (learning === '課題提出が課題') {
+                            lines.push('・課題提出の改善に向けて、自己管理能力の向上に努めている。');
+                        } else if (learning === '文武両道型') {
+                            lines.push('・学習と部活動を両立させ、充実した学校生活を送っている。');
+                        }
+
+                        if (grade === '第3学年' && career) {
+                            if (career === '四年制大学（文系）') {
+                                lines.push('・文系大学進学に向けて、国語・英語・社会科目の学力向上に取り組んでいる。');
+                            } else if (career === '四年制大学（理系）') {
+                                lines.push('・理系大学進学に向けて、数学・理科科目の深い理解を目指している。');
+                            } else if (career === '四年制大学（看護・医療系）') {
+                                lines.push('・看護・医療系大学進学に向けて、専門的な知識の習得に励んでいる。');
+                            } else if (career === '短期大学・専門学校') {
+                                lines.push('・短大・専門学校進学に向けて、実践的なスキル習得に意欲的である。');
+                            } else if (career === '就職・公務員志望') {
+                                lines.push('・就職・公務員として社会に貢献するため、必要な知識と技能の習得に努めている。');
+                            }
+                        }
+
+                        if (lifestyle === '勉強は苦手だが行事は頑張る') {
+                            lines.push('・学校行事において積極的に活動し、クラスに活気をもたらしている。');
+                        } else if (lifestyle === '清掃や雑務を厭わない') {
+                            lines.push('・日常の清掃活動や雑務に真摯に取り組み、責任感の強さを示している。');
+                        } else if (lifestyle === '欠席がちだが登校時は意欲的') {
+                            lines.push('・登校した際には意欲的に授業や活動に参加している。');
+                        } else if (lifestyle === '規律を重んじる') {
+                            lines.push('・校則を守り、規律ある学校生活を実践している。');
+                        } else if (lifestyle === '行事の裏方担当') {
+                            lines.push('・学校行事の準備や運営を支え、重要な役割を果たしている。');
+                        }
+                        break;
+
+                    case 2: // 活動→生活→学習
+                        if (activities === '部活動一筋（運動部）') {
+                            lines.push('・運動部活動に全力で取り組み、心身ともに成長を遂げている。');
+                        } else if (activities === '部活動一筋（文化部）') {
+                            lines.push('・文化部活動に情熱を注ぎ、技能と知識を深めている。');
+                        } else if (activities === 'マネージャーとして貢献') {
+                            lines.push('・マネージャーとして部活動を陰で支え、チームに不可欠な存在となっている。');
+                        } else if (activities === '学外活動に注力') {
+                            lines.push('・学外活動を通じて視野を広げ、多様な価値観を学んでいる。');
+                        } else if (activities === '部活動未所属') {
+                            lines.push('・部活動以外の分野で自己実現を図り、個性を伸ばしている。');
+                        }
+
+                        if (lifestyle === '勉強は苦手だが行事は頑張る') {
+                            lines.push('・学校行事では率先して活動し、クラスの団結に貢献している。');
+                        } else if (lifestyle === '清掃や雑務を厭わない') {
+                            lines.push('・清掃活動や日常の雑務を進んで行い、奉仕の精神を持っている。');
+                        } else if (lifestyle === '欠席がちだが登校時は意欲的') {
+                            lines.push('・登校時には授業や活動に真剣に取り組む姿勢が見られる。');
+                        } else if (lifestyle === '規律を重んじる') {
+                            lines.push('・規律を重んじ、他の生徒の模範となる行動を取っている。');
+                        } else if (lifestyle === '行事の裏方担当') {
+                            lines.push('・学校行事では裏方として献身的に活動し、成功を支えている。');
+                        }
+
+                        if (learning === '真面目・コツコツ型') {
+                            lines.push('・毎日の学習を大切にし、着実に学力を積み重ねている。');
+                        } else if (learning === '苦手だが意欲あり') {
+                            lines.push('・苦手な科目にも前向きに取り組み、向上心を持って学習している。');
+                        } else if (learning === '特定科目に強い') {
+                            lines.push('・得意科目においては高い学力を発揮し、周囲の刺激となっている。');
+                        } else if (learning === '試験前集中型') {
+                            lines.push('・試験期間には高い集中力を発揮し、効果的に学習を進めている。');
+                        } else if (learning === '課題提出が課題') {
+                            lines.push('・課題提出の改善を目指し、計画性を身につけようと努力している。');
+                        } else if (learning === '文武両道型') {
+                            lines.push('・学習と部活動の両面で成果を上げ、充実した日々を過ごしている。');
+                        }
+
+                        if (personality === '明るく社交的') {
+                            lines.push('・明るい性格でクラスを盛り上げ、良好な人間関係を築いている。');
+                        } else if (personality === '控えめだが誠実') {
+                            lines.push('・控えめながらも誠実に行動し、周囲から厚い信頼を得ている。');
+                        } else if (personality === 'リーダーシップ発揮') {
+                            lines.push('・リーダーとして集団をまとめ、目標達成に向けて導く力を持っている。');
+                        } else if (personality === '協調性が高い') {
+                            lines.push('・協調性を発揮し、グループ活動を円滑に進める能力を持っている。');
+                        } else if (personality === '独自の感性を持つ') {
+                            lines.push('・独自の視点を持ち、創造的な発想で周囲に刺激を与えている。');
+                        } else if (personality === '温和で冷静') {
+                            lines.push('・温和で冷静な対応ができ、周囲に落ち着きをもたらしている。');
+                        }
+
+                        if (grade === '第3学年' && career) {
+                            if (career === '四年制大学（文系）') {
+                                lines.push('・文系大学への進学という目標に向けて、着実に準備を進めている。');
+                            } else if (career === '四年制大学（理系）') {
+                                lines.push('・理系大学への進学を目指し、専門的な学力の向上に励んでいる。');
+                            } else if (career === '四年制大学（看護・医療系）') {
+                                lines.push('・看護・医療系大学への進学を目指し、使命感を持って学習に取り組んでいる。');
+                            } else if (career === '短期大学・専門学校') {
+                                lines.push('・短大・専門学校への進学を目指し、専門技能の習得に意欲を見せている。');
+                            } else if (career === '就職・公務員志望') {
+                                lines.push('・就職・公務員として社会で活躍するため、実践的な力を養っている。');
+                            }
+                        }
+                        break;
+
+                    case 3: // 生活→性格→学習
+                        if (lifestyle === '勉強は苦手だが行事は頑張る') {
+                            lines.push('・学校行事には全力で取り組み、クラスの雰囲気作りに大きく貢献している。');
+                        } else if (lifestyle === '清掃や雑務を厭わない') {
+                            lines.push('・清掃や日常の雑務を率先して行い、高い責任感を示している。');
+                        } else if (lifestyle === '欠席がちだが登校時は意欲的') {
+                            lines.push('・登校時には意欲的に授業や活動に参加し、前向きな姿勢を見せている。');
+                        } else if (lifestyle === '規律を重んじる') {
+                            lines.push('・規律を重んじ、模範的な学校生活を送っている。');
+                        } else if (lifestyle === '行事の裏方担当') {
+                            lines.push('・学校行事では裏方として活動を支え、重要な役割を担っている。');
+                        }
+
+                        if (personality === '明るく社交的') {
+                            lines.push('・明るく社交的で、クラスに活気をもたらす存在である。');
+                        } else if (personality === '控えめだが誠実') {
+                            lines.push('・控えめだが誠実な人柄で、信頼される存在である。');
+                        } else if (personality === 'リーダーシップ発揮') {
+                            lines.push('・リーダーシップを発揮し、集団の中心として活躍している。');
+                        } else if (personality === '協調性が高い') {
+                            lines.push('・高い協調性を持ち、周囲との調和を大切にしている。');
+                        } else if (personality === '独自の感性を持つ') {
+                            lines.push('・独自の感性を持ち、ユニークな視点で物事を捉えている。');
+                        } else if (personality === '温和で冷静') {
+                            lines.push('・温和で冷静な性格で、周囲に安定感を与えている。');
+                        }
+
+                        if (learning === '真面目・コツコツ型') {
+                            lines.push('・学習に真面目に取り組み、地道な努力を続けている。');
+                        } else if (learning === '苦手だが意欲あり') {
+                            lines.push('・苦手意識を持ちながらも、学習への意欲を失わず努力している。');
+                        } else if (learning === '特定科目に強い') {
+                            lines.push('・特定科目において優れた能力を発揮し、高い成果を上げている。');
+                        } else if (learning === '試験前集中型') {
+                            lines.push('・試験前には集中力を高め、計画的に学習を進めている。');
+                        } else if (learning === '課題提出が課題') {
+                            lines.push('・課題提出の改善に向けて、自己管理能力の向上を図っている。');
+                        } else if (learning === '文武両道型') {
+                            lines.push('・学習と部活動を両立し、バランスの取れた学校生活を実現している。');
+                        }
+
+                        if (activities === '部活動一筋（運動部）') {
+                            lines.push('・運動部活動に熱心に取り組み、技術と体力の向上に努めている。');
+                        } else if (activities === '部活動一筋（文化部）') {
+                            lines.push('・文化部活動に熱心に取り組み、専門的な技能を磨いている。');
+                        } else if (activities === 'マネージャーとして貢献') {
+                            lines.push('・マネージャーとして部活動を支え、チームに貢献している。');
+                        } else if (activities === '学外活動に注力') {
+                            lines.push('・学外活動に積極的に参加し、幅広い経験を積んでいる。');
+                        } else if (activities === '部活動未所属') {
+                            lines.push('・部活動以外の分野で自己の興味関心を追求している。');
+                        }
+
+                        if (grade === '第3学年' && career) {
+                            if (career === '四年制大学（文系）') {
+                                lines.push('・文系大学進学という目標に向けて、計画的に学習を進めている。');
+                            } else if (career === '四年制大学（理系）') {
+                                lines.push('・理系大学進学を目指し、理数系科目の学力向上に取り組んでいる。');
+                            } else if (career === '四年制大学（看護・医療系）') {
+                                lines.push('・看護・医療系大学進学を目指し、専門分野への理解を深めている。');
+                            } else if (career === '短期大学・専門学校') {
+                                lines.push('・短大・専門学校進学を目指し、実践的な技能習得に励んでいる。');
+                            } else if (career === '就職・公務員志望') {
+                                lines.push('・就職・公務員試験に向けて、必要な知識と技能の習得に努めている。');
+                            }
+                        }
+                        break;
+
+                    case 4: // 総合的なパターン
+                        if (learning === '真面目・コツコツ型') {
+                            lines.push('・日々の授業に真摯に向き合い、着実に学力を向上させている。');
+                        } else if (learning === '苦手だが意欲あり') {
+                            lines.push('・学習に困難を感じながらも、諦めずに努力を継続している。');
+                        } else if (learning === '特定科目に強い') {
+                            lines.push('・得意科目において卓越した能力を発揮し、さらなる高みを目指している。');
+                        } else if (learning === '試験前集中型') {
+                            lines.push('・試験に向けて効率的に学習を進め、着実に成果を上げている。');
+                        } else if (learning === '課題提出が課題') {
+                            lines.push('・課題提出の改善を課題としながらも、学習内容の理解は深まっている。');
+                        } else if (learning === '文武両道型') {
+                            lines.push('・学習と部活動の両立を実現し、充実した学校生活を送っている。');
+                        }
+
+                        if (personality === '明るく社交的') {
+                            lines.push('・明るく社交的な性格で、クラスの中心的存在として活躍している。');
+                        } else if (personality === '控えめだが誠実') {
+                            lines.push('・控えめながらも誠実に物事に取り組み、周囲から信頼されている。');
+                        } else if (personality === 'リーダーシップ発揮') {
+                            lines.push('・優れたリーダーシップで集団をまとめ、目標達成に導いている。');
+                        } else if (personality === '協調性が高い') {
+                            lines.push('・協調性を大切にし、チームワークを重視した行動を取っている。');
+                        } else if (personality === '独自の感性を持つ') {
+                            lines.push('・独自の感性と視点を持ち、創造的な発想で課題に取り組んでいる。');
+                        } else if (personality === '温和で冷静') {
+                            lines.push('・温和で冷静な判断力を持ち、周囲に安心感を与える存在である。');
+                        }
+
+                        if (activities === '部活動一筋（運動部）') {
+                            lines.push('・運動部活動において継続的に努力を重ね、技術と精神力を鍛えている。');
+                        } else if (activities === '部活動一筋（文化部）') {
+                            lines.push('・文化部活動において専門性を高め、優れた成果を上げている。');
+                        } else if (activities === 'マネージャーとして貢献') {
+                            lines.push('・マネージャーとして献身的に活動し、部活動の成功を支えている。');
+                        } else if (activities === '学外活動に注力') {
+                            lines.push('・学外活動を通じて多様な経験を積み、視野を広げている。');
+                        } else if (activities === '部活動未所属') {
+                            lines.push('・部活動以外の分野で自己の可能性を探求し、個性を伸ばしている。');
+                        }
+
+                        if (lifestyle === '勉強は苦手だが行事は頑張る') {
+                            lines.push('・学校行事には積極的に参加し、クラスの団結に大きく貢献している。');
+                        } else if (lifestyle === '清掃や雑務を厭わない') {
+                            lines.push('・清掃や雑務を進んで行い、責任感の強さを示している。');
+                        } else if (lifestyle === '欠席がちだが登校時は意欲的') {
+                            lines.push('・登校時には意欲的に活動に参加し、前向きな姿勢を見せている。');
+                        } else if (lifestyle === '規律を重んじる') {
+                            lines.push('・規律を重んじ、他の生徒の模範となる学校生活を送っている。');
+                        } else if (lifestyle === '行事の裏方担当') {
+                            lines.push('・学校行事では裏方として活動を支え、縁の下の力持ちとして貢献している。');
+                        }
+
+                        if (grade === '第3学年' && career) {
+                            if (career === '四年制大学（文系）') {
+                                lines.push('・文系四年制大学への進学を目指し、人文・社会科学分野の学力向上に努めている。');
+                            } else if (career === '四年制大学（理系）') {
+                                lines.push('・理系四年制大学への進学を目指し、自然科学分野の深い理解を追求している。');
+                            } else if (career === '四年制大学（看護・医療系）') {
+                                lines.push('・看護・医療系大学への進学を目指し、医療従事者としての使命感を持って学習している。');
+                            } else if (career === '短期大学・専門学校') {
+                                lines.push('・短期大学・専門学校への進学を目指し、実践的な専門技能の習得に意欲的である。');
+                            } else if (career === '就職・公務員志望') {
+                                lines.push('・就職・公務員として社会に貢献するため、実務的な知識と技能の習得に励んでいる。');
+                            }
+                        }
+                        break;
+                }
+
+                // 10パターン目は特別な締めくくり
+                if (i === 9) {
+                    lines.push('・今後のさらなる成長と活躍を期待する。');
+                }
+
+                shoken = lines.join('\n');
+                patterns.push(shoken);
+            }
+
+            return patterns;
+        }
+
+        // 生成ボタンクリック
+        document.getElementById('generateBtn').addEventListener('click', function () {
+            const grade = document.getElementById('grade').value;
+            const learning = document.getElementById('learning').value;
+            const personality = document.getElementById('personality').value;
+            const lifestyle = document.getElementById('lifestyle').value;
+            const activities = document.getElementById('activities').value;
+            const career = document.getElementById('career').value;
+
+            // バリデーション
+            if (!grade || !learning || !personality || !lifestyle || !activities) {
+                showCatMessage('ちゃんと全部選択しなさいよ！バカなの？');
+                return;
+            }
+
+            if (grade === '第3学年' && !career) {
+                showCatMessage('3年生なら進路も選びなさいって言ったでしょ！');
+                return;
+            }
+
+            // ローディング表示
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultsArea').classList.remove('show');
+
+            showCatMessage('ふん...生成してあげるわ。感謝しなさいよね！');
+
+            // 少し遅延させて生成（演出）
+            setTimeout(() => {
+                const selections = { grade, learning, personality, lifestyle, activities, career };
+                const patterns = generateShoken(selections);
+
+                // 結果表示
+                const resultsContainer = document.getElementById('resultsContainer');
+                resultsContainer.innerHTML = '';
+
+                patterns.forEach((pattern, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    resultItem.innerHTML = `
+                        <div class="result-header">
+                            <span class="result-number">パターン ${index + 1}</span>
+                            <button class="copy-btn" data-index="${index}">コピー</button>
+                        </div>
+                        <div class="result-text">${pattern}</div>
+                    `;
+                    resultsContainer.appendChild(resultItem);
+                });
+
+                // コピーボタンのイベント設定
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const index = this.getAttribute('data-index');
+                        const text = patterns[index];
+
+                        navigator.clipboard.writeText(text).then(() => {
+                            this.textContent = 'コピー完了！';
+                            this.classList.add('copied');
+                            showCatMessage('コピーできたわよ。使いこなしなさいよね！');
+
+                            setTimeout(() => {
+                                this.textContent = 'コピー';
+                                this.classList.remove('copied');
+                            }, 2000);
+                        }).catch(err => {
+                            showCatMessage('コピーに失敗したわ...ブラウザのせいよ！');
+                        });
+                    });
+                });
+
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('resultsArea').classList.add('show');
+
+                showCatMessage('できたわよ！まあ...悪くない出来でしょ？（ドヤ顔）');
+            }, 1500);
+        });
+
+        // 初期化
+        populateSelects();
+
+        // 初回メッセージ
+        setTimeout(() => {
+            showCatMessage('べ、別にあんたのために作ったんじゃないんだからね！');
+        }, 1000);
+
+        // 猫ナビゲーターのドラッグ機能
+        (function () {
+            const cat = document.getElementById('catNavigator');
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            cat.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            // タッチデバイス対応
+            cat.addEventListener('touchstart', dragStart);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', dragEnd);
+
+            function dragStart(e) {
+                if (e.type === 'touchstart') {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+
+                if (e.target === cat) {
+                    isDragging = true;
+                    cat.classList.add('dragging');
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+
+                    if (e.type === 'touchmove') {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    } else {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    setTranslate(currentX, currentY, cat);
+                }
+            }
+
+            function dragEnd(e) {
+                if (isDragging) {
+                    initialX = currentX;
+                    initialY = currentY;
+                    isDragging = false;
+                    cat.classList.remove('dragging');
+                }
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate(${xPos}px, ${yPos}px) translateY(-50%)`;
+            }
+        })();
+    </script>
+</body>
+
+</html>

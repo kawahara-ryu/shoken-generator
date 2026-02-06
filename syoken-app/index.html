@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>しょけんちゃんジェネレーター - Login</title>
+    <!-- ドラクエ風フォント（なければドットフォントに近いものを使用） -->
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            background-image: url('rpg_map_bg.png');
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'DotGothic16', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* 画面全体を少し暗くして文字を見やすくするオーバーレイ */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        /* RPG風メッセージウィンドウ */
+        .rpg-window {
+            position: relative;
+            z-index: 10;
+            background-color: #000;
+            border: 4px solid #fff;
+            border-radius: 8px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            /* 角を少し丸くしつつ、ドット絵っぽさを残す */
+            image-rendering: pixelated;
+        }
+
+        /* ウィンドウの枠線（二重線風） */
+        .rpg-window::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 2px solid #fff;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        input[type="password"] {
+            background-color: #000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            font-family: 'DotGothic16', sans-serif;
+            font-size: 18px;
+            width: 80%;
+            outline: none;
+        }
+
+        input[type="password"]:focus {
+            background-color: #222;
+        }
+
+        .btn-container {
+            text-align: center;
+        }
+
+        button {
+            background-color: #000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 30px;
+            font-family: 'DotGothic16', sans-serif;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        button:hover {
+            background-color: #fff;
+            color: #000;
+        }
+
+        /* カーソルアイコン（三角形） */
+        button:hover::before {
+            content: '▶';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        .error-message {
+            color: #ff5555;
+            text-align: center;
+            margin-top: 15px;
+            height: 24px;
+            /* 高さを確保してガタつき防止 */
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"></div>
+
+    <div class="rpg-window">
+        <h1>
+            しょけんちゃんジェネレーター<br>
+            へ ようこそ！
+        </h1>
+
+        <div class="input-group">
+            <label for="password">あいことば を いれてください</label>
+            <input type="password" id="password" placeholder="********">
+        </div>
+
+        <div class="btn-container">
+            <button onclick="checkPassword()">すすむ</button>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (password === 'ueno') {
+                // 正解（通常モード）
+                errorMessage.textContent = '認証成功！';
+                errorMessage.style.color = '#55ff55';
+
+                setTimeout(() => {
+                    window.location.href = 'shoken-generator.html';
+                }, 500);
+            } else if (password === 'uraueno') {
+                // 裏モード
+                errorMessage.textContent = '裏モード 認証成功...';
+                errorMessage.style.color = '#ff00ff';
+
+                setTimeout(() => {
+                    window.location.href = 'shooting-game.html';
+                }, 1000);
+            } else {
+                // 不正解
+                errorMessage.textContent = 'ちがいます。';
+                errorMessage.style.color = '#ff5555';
+
+                // 入力欄をクリアしてフォーカス
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        }
+
+        // Enterキーでも送信可能に
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+
+</html>
