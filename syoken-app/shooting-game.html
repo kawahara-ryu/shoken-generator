@@ -6,7 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>逆襲のウサギ</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -19,77 +24,470 @@
             display: block;
         }
 
+        /* ===== UI Layer ===== */
         #ui-layer {
             position: absolute;
             top: 20px;
             left: 20px;
-            color: #fff;
+            color: #0ff;
             font-size: 24px;
-            text-shadow: 2px 2px 0 #000;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
             pointer-events: none;
             z-index: 10;
         }
 
-        #game-over {
+        /* ===== タイトル画面 ===== */
+        #title-screen {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #ff0000;
-            font-size: 64px;
-            text-shadow: 4px 4px 0 #000;
             text-align: center;
-            display: none;
-            z-index: 20;
+            z-index: 30;
+            width: 90%;
+            max-width: 700px;
         }
 
+        /* ===== ボタン共通 ===== */
         button {
-            background: #000;
-            color: #fff;
-            border: 2px solid #fff;
+            background: transparent;
+            color: #0ff;
+            border: 1px solid #0ff;
             padding: 10px 20px;
-            font-family: inherit;
-            font-size: 24px;
+            font-family: 'DotGothic16', sans-serif;
+            font-size: 20px;
             cursor: pointer;
-            margin-top: 20px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #0ff;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3), inset 0 0 5px rgba(0, 255, 255, 0.1);
         }
 
         button:hover {
-            background: #fff;
-            color: #000;
+            background: rgba(0, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5), inset 0 0 10px rgba(0, 255, 255, 0.2);
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+        }
+
+        /* ===== プレイヤー名入力 ===== */
+        #player-name-input {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #0ff;
+            color: #0ff;
+            font-family: 'DotGothic16', sans-serif;
+            font-size: 22px;
+            padding: 12px 20px;
+            text-align: center;
+            width: 300px;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        #player-name-input:focus {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), inset 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        #player-name-input::placeholder {
+            color: rgba(0, 255, 255, 0.4);
+        }
+
+        .diff-btn {
+            font-size: 16px !important;
+            padding: 8px 16px !important;
+        }
+
+        .diff-btn.selected {
+            background: rgba(0, 255, 255, 0.2) !important;
+            color: #fff !important;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6), inset 0 0 10px rgba(0, 255, 255, 0.3) !important;
+        }
+
+        /* ===== リザルト画面 ===== */
+        #result-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 0, 30, 0.97), rgba(0, 10, 40, 0.97));
+            display: none;
+            z-index: 50;
+            overflow-y: auto;
+        }
+
+        #result-screen::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 255, 0.03) 2px, rgba(0, 255, 255, 0.03) 4px);
+            pointer-events: none;
+            z-index: 51;
+        }
+
+        .result-content {
+            position: relative;
+            z-index: 52;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 2px 0 #f0f, -2px 0 #0ff;
+            }
+
+            20% {
+                text-shadow: -2px 0 #f0f, 2px 0 #0ff;
+            }
+
+            40% {
+                text-shadow: 2px 2px #f0f, -2px -2px #0ff;
+            }
+
+            60% {
+                text-shadow: -1px 1px #f0f, 1px -1px #0ff;
+            }
+
+            80% {
+                text-shadow: 1px -2px #f0f, -1px 2px #0ff;
+            }
+
+            100% {
+                text-shadow: 2px 0 #f0f, -2px 0 #0ff;
+            }
+        }
+
+        @keyframes flicker {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.95;
+            }
+
+            52% {
+                opacity: 0.6;
+            }
+
+            54% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes neonPulse {
+
+            0%,
+            100% {
+                text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+            }
+
+            50% {
+                text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 40px #0ff, 0 0 80px #0ff;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .result-gameover {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 56px;
+            font-weight: 900;
+            color: #f00;
+            animation: glitch 0.3s infinite, flicker 3s infinite;
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+
+        .result-comment {
+            color: #888;
+            font-size: 18px;
+            margin-bottom: 30px;
+            font-style: italic;
+            animation: slideIn 0.5s ease 0.3s both;
+        }
+
+        .result-player {
+            font-size: 28px;
+            color: #f0f;
+            margin-bottom: 5px;
+            animation: glitch 0.5s infinite, slideIn 0.5s ease 0.5s both;
+            letter-spacing: 2px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            color: #ff0;
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease 0.7s both;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+        }
+
+        .result-score-box {
+            border: 1px solid #0ff;
+            padding: 25px;
+            margin: 20px auto;
+            max-width: 350px;
+            background: rgba(0, 255, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.05);
+            animation: slideIn 0.5s ease 0.9s both;
+        }
+
+        .result-score-label {
+            font-size: 14px;
+            color: #0ff;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+        }
+
+        .result-score-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 64px;
+            font-weight: 900;
+            color: #0ff;
+            animation: neonPulse 2s infinite;
+        }
+
+        .result-difficulty {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .ranking-section {
+            margin-top: 30px;
+            animation: slideIn 0.5s ease 1.1s both;
+        }
+
+        .ranking-section h3 {
+            color: #0ff;
+            font-size: 20px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            margin-bottom: 15px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .ranking-table th {
+            color: #0ff;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 8px 5px;
+            font-weight: normal;
+            letter-spacing: 2px;
+            font-size: 12px;
+        }
+
+        .ranking-table td {
+            color: #ccc;
+            padding: 8px 5px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        .ranking-table tr.current-player td {
+            color: #f0f;
+            text-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+        }
+
+        .ranking-table .rank-god {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .ranking-table .rank-sub-god {
+            color: #c0c0c0;
+            text-shadow: 0 0 8px rgba(192, 192, 192, 0.5);
+        }
+
+        .ranking-table .rank-ex-god {
+            color: #cd7f32;
+            text-shadow: 0 0 6px rgba(205, 127, 50, 0.5);
+        }
+
+        .result-buttons {
+            margin-top: 30px;
+            animation: slideIn 0.5s ease 1.3s both;
+        }
+
+        .result-buttons button {
+            font-size: 22px;
+            padding: 12px 30px;
+        }
+
+        /* ===== ランキング閲覧画面 ===== */
+        #ranking-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 0, 30, 0.97), rgba(0, 10, 40, 0.97));
+            display: none;
+            z-index: 40;
+            overflow-y: auto;
+        }
+
+        #ranking-viewer::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 255, 0.03) 2px, rgba(0, 255, 255, 0.03) 4px);
+            pointer-events: none;
+            z-index: 41;
+        }
+
+        .ranking-viewer-content {
+            position: relative;
+            z-index: 42;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .ranking-viewer-content h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            color: #0ff;
+            animation: neonPulse 2s infinite;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            font-size: 14px !important;
+            padding: 6px 14px !important;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 255, 255, 0.2) !important;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5) !important;
         }
     </style>
 </head>
 
 <body>
+    <!-- ===== タイトル画面 ===== -->
     <div id="title-screen">
-        <h1 style="font-size: 64px; color: #ff00ff; text-shadow: 4px 4px 0 #fff; margin-bottom: 10px;">ウサギの逆襲</h1>
-        <p style="color: #fff; font-size: 24px; margin-bottom: 30px;">〜迫りくる猫たちを撃退せよ〜</p>
-
-        <div id="difficulty-selector" style="margin-bottom: 20px;">
-            <p style="color: #ffff00; font-size: 20px;">難易度を選んでください</p>
-            <button class="diff-btn" data-diff="easy" style="font-size: 18px; padding: 10px;">Easy (ゆとり)</button>
-            <button class="diff-btn" data-diff="normal" style="font-size: 18px; padding: 10px;">Normal (一般)</button>
-            <button class="diff-btn" data-diff="hard" style="font-size: 18px; padding: 10px;">Hard (残業)</button>
-            <button class="diff-btn" data-diff="veryhard" style="font-size: 18px; padding: 10px; color:red;">VeryHard
-                (連勤)</button>
-            <button class="diff-btn" data-diff="alone" style="font-size: 18px; padding: 10px; color:purple;">Alone
-                (孤独)</button>
+        <h1
+            style="font-family: 'Orbitron', sans-serif; font-size: 48px; color: #f0f; text-shadow: 0 0 10px #f0f, 0 0 20px #f0f, 0 0 40px #f0f; margin-bottom: 5px; letter-spacing: 3px;">
+            ウサギの逆襲</h1>
+        <p style="color: #0ff; font-size: 18px; margin-bottom: 25px; text-shadow: 0 0 5px #0ff;">〜迫りくる猫たちを撃退せよ〜</p>
+        <div style="margin-bottom: 20px;">
+            <p style="color: #0ff; font-size: 14px; letter-spacing: 2px; margin-bottom: 5px;">PLAYER NAME</p>
+            <input type="text" id="player-name-input" placeholder="名もなき戦士" maxlength="12">
         </div>
-
-        <button id="start-btn" style="padding: 15px 40px; font-size: 32px; display: none;">GAME START</button>
-        <p id="diff-desc" style="color: #aaa; margin-top: 10px; height: 30px;"></p>
+        <div id="difficulty-selector" style="margin-bottom: 15px;">
+            <p style="color: #ff0; font-size: 14px; letter-spacing: 2px; margin-bottom: 8px;">DIFFICULTY</p>
+            <button class="diff-btn" data-diff="easy">Easy (ゆとり)</button>
+            <button class="diff-btn" data-diff="normal">Normal (一般)</button>
+            <button class="diff-btn" data-diff="hard">Hard (残業)</button>
+            <button class="diff-btn" data-diff="veryhard" style="color: #f55;">VeryHard (連勤)</button>
+            <button class="diff-btn" data-diff="alone" style="color: #f0f;">Alone (孤独)</button>
+        </div>
+        <p id="diff-desc" style="color: #888; font-size: 14px; height: 20px; margin-bottom: 10px;"></p>
+        <button id="start-btn" style="padding: 14px 50px; font-size: 28px; display: none; letter-spacing: 3px;">GAME
+            START</button>
+        <div style="margin-top: 20px;">
+            <button id="ranking-btn" style="font-size: 16px; padding: 8px 25px; letter-spacing: 2px;">RANKING</button>
+        </div>
     </div>
 
-    <div id="ui-layer" style="display: none;">スコア: <span id="score">0</span> 匹 討伐 <span id="current-diff"
-            style="font-size: 16px; color: #aaa; margin-left: 10px;"></span></div>
-
-    <div id="game-over">
-        <div>GAME OVER</div>
-        <p id="result-comment" style="font-size: 24px; color: #fff; margin-top: 10px;"></p>
-        <button onclick="location.reload()">もういちど</button>
-        <button onclick="location.href='index.html'">もどる</button>
+    <!-- ===== ゲーム中UI ===== -->
+    <div id="ui-layer" style="display: none;">
+        スコア: <span id="score">0</span> 匹 討伐
+        <span id="current-diff" style="font-size: 16px; color: #888; margin-left: 10px;"></span>
+        <span id="timer-display" style="font-size: 16px; color: #ff0; margin-left: 15px;"></span>
     </div>
+
+    <!-- ===== リザルト画面 ===== -->
+    <div id="result-screen">
+        <div class="result-content">
+            <div class="result-gameover">GAME OVER</div>
+            <div class="result-comment" id="result-comment"></div>
+            <div class="result-player" id="result-player-name"></div>
+            <div class="result-title" id="result-player-title"></div>
+            <div class="result-score-box">
+                <div class="result-score-label">SCORE</div>
+                <div class="result-score-value" id="result-score-value">0</div>
+                <div class="result-difficulty" id="result-difficulty-name"></div>
+            </div>
+            <div class="ranking-section">
+                <h3>― RANKING ―</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>RANK</th>
+                            <th>NAME</th>
+                            <th>TITLE</th>
+                            <th>SCORE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-ranking-body"></tbody>
+                </table>
+            </div>
+            <div class="result-buttons">
+                <button onclick="location.reload()">もういちど</button>
+                <button onclick="location.href='index.html'">もどる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ランキング閲覧画面 ===== -->
+    <div id="ranking-viewer">
+        <div class="ranking-viewer-content">
+            <h2>RANKING</h2>
+            <div class="tab-bar" id="ranking-tabs"></div>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>NAME</th>
+                        <th>TITLE</th>
+                        <th>SCORE</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-viewer-body"></tbody>
+            </table>
+            <div style="margin-top: 25px;">
+                <button id="ranking-back-btn" style="font-size: 18px;">もどる</button>
+            </div>
+        </div>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
 
     <script>
@@ -98,31 +496,63 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // 画像の読み込み（シンプルに戻す）
+        // 画像
         const bgImg = new Image(); bgImg.src = 'rpg_map_bg.png';
         const playerImg = new Image(); playerImg.src = 'rabbit_pistol.png';
         const enemyImg = new Image(); enemyImg.src = 'cat_run.png';
-        const bossImg = new Image(); bossImg.src = 'boss_cat.png'; // ボス画像
+        const bossImg = new Image(); bossImg.src = 'boss_cat.png';
 
-        // シュールな言葉リスト
-        const surrealWords = [
-            "虚無", "定時退社", "有給消化", "資本主義",
-            "承認欲求", "既読スルー", "老後資金", "コンプラ",
-            "税金", "優勝", "論破", "黒歴史", "サヨナラ", "爆散", "成仏"
-        ];
-
-        // ボス専用の台詞
+        // シュールな言葉
+        const surrealWords = ["虚無", "定時退社", "有給消化", "資本主義", "承認欲求", "既読スルー", "老後資金", "コンプラ", "税金", "優勝", "論破", "黒歴史", "サヨナラ", "爆散", "成仏"];
         const bossWords = ["我は神なり", "無駄無駄", "領域展開", "解せぬ", "にゃーん"];
+        const eliteWords = ["金の亡者", "拝金主義", "パワハラ上司", "転職失敗", "闇営業"];
 
-        // ゲーム状態
-        let gameState = 'TITLE'; // TITLE, PLAYING, GAMEOVER
-        let score = 0;
-        let killCount = 0; // ボス出現判定用
-        let frames = 0;
-        let spawnRate = 60;
-        let bossActive = false; // ボス戦中フラグ
+        // 称号
+        function getTitle(s) {
+            if (s >= 100) return "CEO of ウサギ";
+            if (s >= 50) return "取締役";
+            if (s >= 30) return "部長代理";
+            if (s >= 15) return "中間管理職";
+            if (s >= 5) return "平社員";
+            return "社畜見習い";
+        }
+        function getRankName(r) { return r === 1 ? "神" : r === 2 ? "準神" : r === 3 ? "元神" : "凡人"; }
+        function getRankClass(r) { return r === 1 ? "rank-god" : r === 2 ? "rank-sub-god" : r === 3 ? "rank-ex-god" : ""; }
 
-        // 難易度パラメータ
+        const gameOverComments = {
+            easy: "ゆとりある人生だった...",
+            normal: "お疲れ様でした。明日も出社です。",
+            hard: "残業代は出ません。",
+            veryhard: "労基に連絡してください。",
+            alone: "やっぱり、ひとりだった。"
+        };
+
+        // ランキング
+        function getRanking(d) { try { const v = localStorage.getItem(`ranking_${d}`); return v ? JSON.parse(v) : []; } catch (e) { return []; } }
+        function saveRanking(d, e) { const r = getRanking(d); r.push(e); r.sort((a, b) => b.score - a.score); const t = r.slice(0, 10); localStorage.setItem(`ranking_${d}`, JSON.stringify(t)); return t; }
+
+        // ===== ゲーム状態 =====
+        let gameState = 'TITLE';
+        let score = 0, killCount = 0, frames = 0, spawnRate = 60;
+        let bossActive = false, playerName = "名もなき戦士";
+        let gameStartTime = 0; // ゲーム開始時刻（ms）
+        let elapsedSeconds = 0; // 経過秒数
+
+        // ===== オーバーヒートシステム =====
+        let heat = 0;           // 0〜100
+        let overheated = false;  // オーバーヒート中か
+        const HEAT_PER_SHOT = 18;
+        const HEAT_COOLDOWN = 0.8; // 毎フレーム冷える量
+        const OVERHEAT_THRESHOLD = 100;
+        const OVERHEAT_RECOVERY = 50; // この値以下まで冷えたら復帰
+
+        // ===== 画面縮小 =====
+        let arenaMargin = 0; // 画面端からの壁の厚さ
+        const ARENA_SHRINK_START = 30;  // 30秒後から縮小開始
+        const ARENA_SHRINK_RATE = 0.02; // フレーム毎のマージン増加量
+        const ARENA_MAX_MARGIN = 200;   // 最大マージン
+
+        // 難易度
         let difficulty = 'normal';
         const difficultySettings = {
             easy: { name: "ゆとり", spawn: 80, speedMulti: 0.8, bossHp: 5, desc: "ゆっくり生きたい人向け" },
@@ -132,89 +562,152 @@
             alone: { name: "孤独", spawn: 10, speedMulti: 2.5, bossHp: 100, desc: "誰も助けてくれない" }
         };
 
-        // オブジェクト
-        const player = {
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-            size: 64,
-            speed: 5
-        };
-        let bullets = [];
-        let enemies = [];
-        let effects = [];
-        let texts = [];
+        const player = { x: canvas.width / 2, y: canvas.height / 2, size: 64, speed: 5 };
+        let bullets = [], enemies = [], effects = [], enemyBullets = [];
 
-        // 入力管理
         const keys = {};
-        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'Space') e.preventDefault(); });
         window.addEventListener('keyup', e => keys[e.code] = false);
 
-        // タイトル画面の処理
+        // DOM
         const titleScreen = document.getElementById('title-screen');
         const uiLayer = document.getElementById('ui-layer');
         const startBtn = document.getElementById('start-btn');
-        const gameOverScreen = document.getElementById('game-over');
+        const resultScreen = document.getElementById('result-screen');
         const diffBtns = document.querySelectorAll('.diff-btn');
         const diffDesc = document.getElementById('diff-desc');
         const currentDiffDisplay = document.getElementById('current-diff');
-        const resultComment = document.getElementById('result-comment');
+        const rankingViewer = document.getElementById('ranking-viewer');
+        const nameInput = document.getElementById('player-name-input');
+        const timerDisplay = document.getElementById('timer-display');
 
         diffBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // 選択状態の見た目
-                diffBtns.forEach(b => b.style.background = '#000');
-                diffBtns.forEach(b => b.style.color = '#fff');
-                btn.style.background = '#fff';
-                btn.style.color = '#000';
-
-                // 設定反映
+                diffBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
                 difficulty = btn.dataset.diff;
-                const setting = difficultySettings[difficulty];
-                diffDesc.textContent = setting.desc;
-
-                spawnRate = setting.spawn;
+                diffDesc.textContent = difficultySettings[difficulty].desc;
+                spawnRate = difficultySettings[difficulty].spawn;
                 startBtn.style.display = 'inline-block';
             });
         });
 
         startBtn.addEventListener('click', () => {
+            playerName = nameInput.value.trim() || "名もなき戦士";
             titleScreen.style.display = 'none';
             uiLayer.style.display = 'block';
             currentDiffDisplay.textContent = `[${difficultySettings[difficulty].name}]`;
+            gameStartTime = Date.now();
             gameState = 'PLAYING';
             loop();
         });
 
-        // タイトル画面のスタイル調整
-        titleScreen.style.position = 'absolute';
-        titleScreen.style.top = '50%';
-        titleScreen.style.left = '50%';
-        titleScreen.style.transform = 'translate(-50%, -50%)';
-        titleScreen.style.textAlign = 'center';
-        titleScreen.style.zIndex = '30';
+        // ランキング閲覧
+        document.getElementById('ranking-btn').addEventListener('click', () => {
+            titleScreen.style.display = 'none';
+            rankingViewer.style.display = 'block';
+            showRankingViewer('easy');
+            buildRankingTabs();
+        });
+        document.getElementById('ranking-back-btn').addEventListener('click', () => {
+            rankingViewer.style.display = 'none';
+            titleScreen.style.display = 'block';
+        });
 
+        function buildRankingTabs() {
+            const tabBar = document.getElementById('ranking-tabs');
+            tabBar.innerHTML = '';
+            Object.keys(difficultySettings).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'tab-btn' + (key === 'easy' ? ' active' : '');
+                btn.textContent = difficultySettings[key].name;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    showRankingViewer(key);
+                });
+                tabBar.appendChild(btn);
+            });
+        }
+
+        function showRankingViewer(diff) {
+            const tbody = document.getElementById('ranking-viewer-body');
+            const ranking = getRanking(diff);
+            tbody.innerHTML = '';
+            if (!ranking.length) { tbody.innerHTML = '<tr><td colspan="4" style="color:#555; padding:20px;">データなし</td></tr>'; return; }
+            ranking.forEach((e, i) => {
+                const r = i + 1;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="${getRankClass(r)}">${getRankName(r)}</td><td>${esc(e.name)}</td><td>${esc(e.title)}</td><td>${e.score}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function esc(s) { const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+
+        function showResult() {
+            const title = getTitle(score);
+            const entry = { name: playerName, score, title, date: new Date().toISOString() };
+            const ranking = saveRanking(difficulty, entry);
+            document.getElementById('result-comment').textContent = gameOverComments[difficulty];
+            document.getElementById('result-player-name').textContent = playerName;
+            document.getElementById('result-player-title').textContent = `― ${title} ―`;
+            document.getElementById('result-score-value').textContent = score;
+            document.getElementById('result-difficulty-name').textContent = `難易度: ${difficultySettings[difficulty].name}`;
+            const tbody = document.getElementById('result-ranking-body');
+            tbody.innerHTML = '';
+            ranking.slice(0, 5).forEach((e, i) => {
+                const r = i + 1, tr = document.createElement('tr');
+                if (e.name === playerName && e.score === score && e.date === entry.date) tr.className = 'current-player';
+                tr.innerHTML = `<td class="${getRankClass(r)}">${getRankName(r)}</td><td>${esc(e.name)}</td><td>${esc(e.title)}</td><td>${e.score}</td>`;
+                tbody.appendChild(tr);
+            });
+            resultScreen.style.display = 'block';
+        }
+
+        // ===== 弾クラス =====
         class Bullet {
-            constructor(x, y, angle) {
-                this.x = x;
-                this.y = y;
-                this.speed = 15;
-                this.angle = angle;
-                this.size = 10;
+            constructor(x, y, angle) { this.x = x; this.y = y; this.speed = 15; this.angle = angle; this.size = 10; }
+            update() { this.x += Math.cos(this.angle) * this.speed; this.y += Math.sin(this.angle) * this.speed; }
+            draw() { ctx.fillStyle = '#ffff00'; ctx.beginPath(); ctx.arc(this.x, this.y, 5, 0, Math.PI * 2); ctx.fill(); }
+        }
+
+        // ===== 敵弾クラス（ボスの猫パンチ弾） =====
+        class EnemyBullet {
+            constructor(x, y, angle, speed) {
+                this.x = x; this.y = y; this.angle = angle;
+                this.speed = speed || 4; this.size = 12; this.life = 300;
             }
             update() {
                 this.x += Math.cos(this.angle) * this.speed;
                 this.y += Math.sin(this.angle) * this.speed;
+                this.life--;
             }
             draw() {
-                ctx.fillStyle = '#ffff00';
+                // 猫の手っぽい弾（ピンクの丸＋肉球）
+                ctx.fillStyle = '#f0f';
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.fillStyle = '#ff69b4';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                // グロー
+                ctx.shadowColor = '#f0f';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
             }
         }
 
+        // ===== 敵クラス =====
         class Enemy {
-            constructor() {
+            constructor(type) {
+                // type: 'normal', 'rush', 'elite', 'boss'
+                this.type = type || 'normal';
                 if (Math.random() < 0.5) {
                     this.x = Math.random() < 0.5 ? -50 : canvas.width + 50;
                     this.y = Math.random() * canvas.height;
@@ -224,12 +717,26 @@
                 }
                 this.size = 64;
                 const setting = difficultySettings[difficulty];
-                this.speed = (2 + Math.random() * 2 + (score / 100)) * setting.speedMulti;
+                const timeScale = 1 + (elapsedSeconds / 60) * 0.5; // 時間経過で強化
+
+                if (this.type === 'rush') {
+                    this.speed = (6 + Math.random() * 3) * setting.speedMulti * timeScale;
+                    this.hp = 1;
+                    this.size = 48; // 小さくて速い
+                } else if (this.type === 'elite') {
+                    this.speed = (3 + Math.random() * 2) * setting.speedMulti * timeScale;
+                    this.hp = 2;
+                    this.size = 72; // やや大きい
+                } else {
+                    this.speed = (2 + Math.random() * 2 + (score / 100)) * setting.speedMulti * timeScale;
+                    this.hp = 1;
+                }
+
                 this.nyaText = "";
-                this.nyaUpdateTimer = 0;
                 this.isBoss = false;
-                this.hp = 1;
+                this.shootTimer = 0; // ボス弾撃ちタイマー
             }
+
             update() {
                 const dx = player.x - this.x;
                 const dy = player.y - this.y;
@@ -240,93 +747,120 @@
                 }
 
                 if (frames % 10 === 0 && !this.isBoss) {
-                    const nyas = ["にゃ", "にゃ～", "にゃあ", "NYA"];
-                    this.nyaText = nyas[Math.floor(Math.random() * nyas.length)];
+                    if (this.type === 'rush') {
+                        const rushNyas = ["ｼｭﾊﾞ", "突撃にゃ", "ﾀﾞｯｼｭ!", "ﾋﾞｭﾝ"];
+                        this.nyaText = rushNyas[Math.floor(Math.random() * rushNyas.length)];
+                    } else if (this.type === 'elite') {
+                        const eliteNyas = ["フン", "弱い", "雑魚め", "¥¥¥"];
+                        this.nyaText = eliteNyas[Math.floor(Math.random() * eliteNyas.length)];
+                    } else {
+                        const nyas = ["にゃ", "にゃ～", "にゃあ", "NYA"];
+                        this.nyaText = nyas[Math.floor(Math.random() * nyas.length)];
+                    }
+                }
+
+                // ボスの弾幕: 2秒ごとに放射状弾幕
+                if (this.isBoss) {
+                    this.shootTimer++;
+                    if (this.shootTimer >= 120) { // 2秒ごと
+                        this.shootTimer = 0;
+                        const bulletCount = 8 + Math.floor(elapsedSeconds / 30) * 2; // 時間で弾幕増加
+                        for (let i = 0; i < bulletCount; i++) {
+                            const angle = (Math.PI * 2 / bulletCount) * i + (frames * 0.01); // 回転する弾幕
+                            enemyBullets.push(new EnemyBullet(this.x, this.y, angle, 3));
+                        }
+                        effects.push(new Effect(this.x, this.y, "猫パンチ！！"));
+                    }
                 }
             }
-            draw() {
-                let img = this.isBoss ? bossImg : enemyImg;
 
+            draw() {
+                const img = this.isBoss ? bossImg : enemyImg;
                 if (img.complete && img.naturalWidth !== 0) {
                     ctx.save();
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
                     ctx.closePath();
-                    ctx.clip(); // 丸く切り抜く
-
-                    // ボスは少し揺れる
-                    let drawX = this.x - this.size / 2;
-                    let drawY = this.y - this.size / 2;
-                    if (this.isBoss) {
-                        drawX += (Math.random() - 0.5) * 5;
-                        drawY += (Math.random() - 0.5) * 5;
-                    }
-
+                    ctx.clip();
+                    let drawX = this.x - this.size / 2, drawY = this.y - this.size / 2;
+                    if (this.isBoss) { drawX += (Math.random() - 0.5) * 5; drawY += (Math.random() - 0.5) * 5; }
                     ctx.drawImage(img, drawX, drawY, this.size, this.size);
                     ctx.restore();
+
+                    // エリート猫に金色ボーダー
+                    if (this.type === 'elite') {
+                        ctx.strokeStyle = '#ffd700';
+                        ctx.lineWidth = 3;
+                        ctx.shadowColor = '#ffd700';
+                        ctx.shadowBlur = 10;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    }
+                    // 突進猫に赤い軌跡
+                    if (this.type === 'rush') {
+                        ctx.strokeStyle = 'rgba(255,0,0,0.5)';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size / 2 + 5, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
                 } else {
-                    ctx.fillStyle = this.isBoss ? '#ff0000' : '#ff9900';
+                    ctx.fillStyle = this.isBoss ? '#f00' : this.type === 'elite' ? '#ffd700' : this.type === 'rush' ? '#f55' : '#ff9900';
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
                     ctx.fill();
                 }
 
-                // 「にゃ～」描画 (ボス以外)
+                // テキスト描画
                 if (!this.isBoss) {
                     ctx.save();
-                    ctx.font = '24px DotGothic16';
-                    ctx.fillStyle = '#ff0000';
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 3;
-                    ctx.textAlign = 'center';
-                    const jitterX = (Math.random() - 0.5) * 10;
-                    const jitterY = (Math.random() - 0.5) * 10;
-                    ctx.strokeText(this.nyaText, this.x + jitterX, this.y - 45 + jitterY);
-                    ctx.fillText(this.nyaText, this.x + jitterX, this.y - 45 + jitterY);
+                    ctx.font = this.type === 'rush' ? '18px DotGothic16' : '24px DotGothic16';
+                    ctx.fillStyle = this.type === 'elite' ? '#ffd700' : this.type === 'rush' ? '#f55' : '#f00';
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.textAlign = 'center';
+                    const jx = (Math.random() - 0.5) * 10, jy = (Math.random() - 0.5) * 10;
+                    ctx.strokeText(this.nyaText, this.x + jx, this.y - 45 + jy);
+                    ctx.fillText(this.nyaText, this.x + jx, this.y - 45 + jy);
                     ctx.restore();
                 }
 
                 // ボスHPバー
                 if (this.isBoss) {
+                    const maxHp = difficultySettings[difficulty].bossHp;
                     ctx.fillStyle = 'red';
-                    ctx.fillRect(this.x - 50, this.y - this.size / 2 - 20, 100 * (this.hp / 10), 10);
-                    ctx.strokeStyle = 'white';
+                    ctx.fillRect(this.x - 50, this.y - this.size / 2 - 20, 100 * (this.hp / maxHp), 10);
+                    ctx.strokeStyle = '#0ff';
                     ctx.strokeRect(this.x - 50, this.y - this.size / 2 - 20, 100, 10);
+                }
+                // エリートHPバー
+                if (this.type === 'elite' && this.hp > 0) {
+                    ctx.fillStyle = '#ffd700';
+                    ctx.fillRect(this.x - 20, this.y - this.size / 2 - 12, 40 * (this.hp / 2), 5);
+                    ctx.strokeStyle = '#fff';
+                    ctx.strokeRect(this.x - 20, this.y - this.size / 2 - 12, 40, 5);
                 }
             }
         }
 
-        // ボス生成関数
         function spawnBoss() {
-            const boss = new Enemy();
+            const boss = new Enemy('normal');
             boss.isBoss = true;
-            boss.size = 200; // 巨大
+            boss.type = 'boss';
+            boss.size = 200;
             boss.hp = difficultySettings[difficulty].bossHp;
-            boss.speed = 1.5 * difficultySettings[difficulty].speedMulti; // 少し遅めだが圧がある
+            boss.speed = 1.5 * difficultySettings[difficulty].speedMulti;
             enemies.push(boss);
             bossActive = true;
-
-            // ボス出現エフェクト（テキスト）
             effects.push(new Effect(canvas.width / 2, canvas.height / 2, "ボス猫出現！！"));
         }
 
         class Effect {
-            constructor(x, y, text) {
-                this.x = x;
-                this.y = y;
-                this.text = text;
-                this.life = 60;
-                this.vy = -1;
-            }
-            update() {
-                this.y += this.vy;
-                this.life--;
-            }
+            constructor(x, y, text) { this.x = x; this.y = y; this.text = text; this.life = 60; this.vy = -1; }
+            update() { this.y += this.vy; this.life--; }
             draw() {
                 ctx.globalAlpha = Math.max(0, this.life / 60);
-                ctx.fillStyle = '#fff';
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 4;
+                ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
                 ctx.font = '28px DotGothic16';
                 ctx.strokeText(this.text, this.x - 30, this.y);
                 ctx.fillText(this.text, this.x - 30, this.y);
@@ -334,112 +868,140 @@
             }
         }
 
-        // FloatingTextクラスは不要になったので除去するか、残しておいてもよい
-        // class FloatingText {
-        //     constructor(x, y, text, color, speed) {
-        //         this.x = x; this.y = y; this.text = text; this.color = color; this.life = 40; this.vy = -speed;
-        //     }
-        //     update() { this.y += this.vy; this.life--; }
-        //     draw() { /* unused */ }
-        // }
+        // ===== オーバーヒートゲージ描画 =====
+        function drawHeatGauge() {
+            const gx = canvas.width - 180, gy = 30, gw = 150, gh = 16;
+            // 背景
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(gx, gy, gw, gh);
+            // ゲージ
+            const ratio = heat / OVERHEAT_THRESHOLD;
+            const color = overheated ? '#f00' : (ratio > 0.7 ? '#f80' : '#0f0');
+            ctx.fillStyle = color;
+            ctx.fillRect(gx, gy, gw * ratio, gh);
+            // 枠
+            ctx.strokeStyle = overheated ? '#f00' : '#0ff';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(gx, gy, gw, gh);
+            // ラベル
+            ctx.fillStyle = overheated ? '#f00' : '#0ff';
+            ctx.font = '12px DotGothic16';
+            ctx.textAlign = 'right';
+            ctx.fillText(overheated ? '🔥 OVERHEAT!' : 'HEAT', gx - 5, gy + 13);
+            ctx.textAlign = 'left';
+        }
 
+        // ===== 画面縮小の壁描画 =====
+        function drawArenaWalls() {
+            if (arenaMargin <= 0) return;
+            ctx.fillStyle = 'rgba(255,0,100,0.15)';
+            // 上
+            ctx.fillRect(0, 0, canvas.width, arenaMargin);
+            // 下
+            ctx.fillRect(0, canvas.height - arenaMargin, canvas.width, arenaMargin);
+            // 左
+            ctx.fillRect(0, 0, arenaMargin, canvas.height);
+            // 右
+            ctx.fillRect(canvas.width - arenaMargin, 0, arenaMargin, canvas.height);
+
+            // ネオンボーダー
+            ctx.strokeStyle = `rgba(255,0,100,${0.3 + Math.sin(frames * 0.05) * 0.2})`;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(arenaMargin, arenaMargin, canvas.width - arenaMargin * 2, canvas.height - arenaMargin * 2);
+
+            // 警告テキスト
+            if (arenaMargin > 30 && frames % 60 < 30) {
+                ctx.fillStyle = '#f06';
+                ctx.font = '14px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.fillText('⚠ AREA SHRINKING ⚠', canvas.width / 2, arenaMargin - 5);
+            }
+        }
+
+        // ===== メインループ =====
         function loop() {
             if (gameState !== 'PLAYING') return;
+
+            // 時間経過計算
+            elapsedSeconds = (Date.now() - gameStartTime) / 1000;
+            timerDisplay.textContent = `${Math.floor(elapsedSeconds)}秒`;
 
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            // 背景
             if (bgImg.complete && bgImg.naturalWidth !== 0) {
                 const bgRatio = bgImg.width / bgImg.height;
                 const canvasRatio = canvas.width / canvas.height;
-                let drawW, drawH, drawX, drawY;
-                if (canvasRatio > bgRatio) {
-                    drawW = canvas.width;
-                    drawH = canvas.width / bgRatio;
-                    drawX = 0;
-                    drawY = (canvas.height - drawH) / 2;
-                } else {
-                    drawW = canvas.height * bgRatio;
-                    drawH = canvas.height;
-                    drawX = (canvas.width - drawW) / 2;
-                    drawY = 0;
-                }
-                ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
+                let dW, dH, dX, dY;
+                if (canvasRatio > bgRatio) { dW = canvas.width; dH = canvas.width / bgRatio; dX = 0; dY = (canvas.height - dH) / 2; }
+                else { dW = canvas.height * bgRatio; dH = canvas.height; dX = (canvas.width - dW) / 2; dY = 0; }
+                ctx.drawImage(bgImg, dX, dY, dW, dH);
             }
 
-            // Player logic
+            // 画面縮小
+            if (elapsedSeconds > ARENA_SHRINK_START && arenaMargin < ARENA_MAX_MARGIN) {
+                arenaMargin += ARENA_SHRINK_RATE;
+            }
+            drawArenaWalls();
+
+            // Player movement (壁の範囲内に制限)
             if (keys['ArrowUp']) player.y -= player.speed;
             if (keys['ArrowDown']) player.y += player.speed;
             if (keys['ArrowLeft']) player.x -= player.speed;
             if (keys['ArrowRight']) player.x += player.speed;
-            player.x = Math.max(player.size / 2, Math.min(canvas.width - player.size / 2, player.x));
-            player.y = Math.max(player.size / 2, Math.min(canvas.height - player.size / 2, player.y));
+            const minX = arenaMargin + player.size / 2, maxX = canvas.width - arenaMargin - player.size / 2;
+            const minY = arenaMargin + player.size / 2, maxY = canvas.height - arenaMargin - player.size / 2;
+            player.x = Math.max(minX, Math.min(maxX, player.x));
+            player.y = Math.max(minY, Math.min(maxY, player.y));
 
-            // Shooting
-            if (keys['Space'] && frames % 10 === 0) {
-                let target = null;
-                let minDist = Infinity;
-                if (enemies.length > 0) {
-                    enemies.forEach(e => {
-                        const d = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
-                        if (d < minDist) {
-                            minDist = d;
-                            target = e;
-                        }
-                    });
-                }
-                let angle = 0;
-                if (target) {
-                    angle = Math.atan2(target.y - player.y, target.x - player.x);
-                }
+            // オーバーヒートクールダウン
+            if (heat > 0) heat = Math.max(0, heat - HEAT_COOLDOWN);
+            if (overheated && heat <= OVERHEAT_RECOVERY) overheated = false;
+
+            // Shooting（オーバーヒート制）
+            if (keys['Space'] && frames % 10 === 0 && !overheated) {
+                let target = null, minDist = Infinity;
+                enemies.forEach(e => {
+                    const d = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+                    if (d < minDist) { minDist = d; target = e; }
+                });
+                let angle = target ? Math.atan2(target.y - player.y, target.x - player.x) : 0;
                 angle += (Math.random() - 0.5) * 0.1;
                 bullets.push(new Bullet(player.x, player.y, angle));
+                heat += HEAT_PER_SHOT;
+                if (heat >= OVERHEAT_THRESHOLD) {
+                    overheated = true;
+                    effects.push(new Effect(player.x, player.y - 40, "🔥過熱！！"));
+                }
             }
 
-            // Draw bullets
+            // Bullets vs Enemies
             for (let i = bullets.length - 1; i >= 0; i--) {
-                bullets[i].update();
-                bullets[i].draw();
-
-                if (bullets[i].x < 0 || bullets[i].x > canvas.width || bullets[i].y < 0 || bullets[i].y > canvas.height) {
-                    bullets.splice(i, 1);
-                    continue;
-                }
-
+                bullets[i].update(); bullets[i].draw();
+                if (bullets[i].x < 0 || bullets[i].x > canvas.width || bullets[i].y < 0 || bullets[i].y > canvas.height) { bullets.splice(i, 1); continue; }
                 let hit = false;
                 for (let j = enemies.length - 1; j >= 0; j--) {
-                    const dx = bullets[i].x - enemies[j].x;
-                    const dy = bullets[i].y - enemies[j].y;
+                    const dx = bullets[i].x - enemies[j].x, dy = bullets[i].y - enemies[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-
                     if (dist < enemies[j].size / 2 + bullets[i].size) {
-                        const ex = enemies[j].x;
-                        const ey = enemies[j].y;
-
-                        // Hit logic
-                        enemies[j].hp -= 1;
-                        hit = true;
-
+                        const ex = enemies[j].x, ey = enemies[j].y;
+                        enemies[j].hp -= 1; hit = true;
                         if (enemies[j].hp <= 0) {
                             if (enemies[j].isBoss) {
-                                // ボス撃破
-                                bossActive = false;
-                                score += 10;
-                                const word = bossWords[Math.floor(Math.random() * bossWords.length)];
-                                effects.push(new Effect(ex, ey, word));
+                                bossActive = false; score += 10;
+                                effects.push(new Effect(ex, ey, bossWords[Math.floor(Math.random() * bossWords.length)]));
+                            } else if (enemies[j].type === 'elite') {
+                                score += 3; killCount++;
+                                effects.push(new Effect(ex, ey, eliteWords[Math.floor(Math.random() * eliteWords.length)]));
                             } else {
-                                // 雑魚撃破
-                                score++;
-                                killCount++;
-                                const word = surrealWords[Math.floor(Math.random() * surrealWords.length)];
-                                effects.push(new Effect(ex, ey, word));
+                                score++; killCount++;
+                                effects.push(new Effect(ex, ey, surrealWords[Math.floor(Math.random() * surrealWords.length)]));
                             }
                             enemies.splice(j, 1);
                             document.getElementById('score').textContent = score;
                         } else {
-                            // ヒットエフェクト（ボスだけ）
-                            const word = "痛っ";
-                            effects.push(new Effect(ex, ey, word));
+                            effects.push(new Effect(ex, ey, "痛っ"));
                         }
                         break;
                     }
@@ -448,101 +1010,101 @@
             }
 
             // Spawn enemies
-            // ボス戦中は雑魚を止めるか、減らすか
             if (!bossActive) {
-                // 10匹倒すごとにボス出現
                 if (killCount >= 10) {
-                    spawnBoss();
-                    killCount = 0; // リセット
+                    spawnBoss(); killCount = 0;
                 } else {
-                    const currentSpawnRate = Math.max(20, spawnRate - Math.floor(score / 5));
-                    if (frames % currentSpawnRate === 0) {
-                        enemies.push(new Enemy());
+                    const timeScale = 1 + (elapsedSeconds / 60) * 0.3;
+                    const rate = Math.max(10, Math.floor((spawnRate - Math.floor(score / 5)) / timeScale));
+                    if (frames % rate === 0) {
+                        // 確率で種類を選ぶ
+                        const roll = Math.random();
+                        if (roll < 0.1 + elapsedSeconds * 0.002) {
+                            // 突進猫
+                            enemies.push(new Enemy('rush'));
+                        } else if (roll < 0.18 + elapsedSeconds * 0.001) {
+                            // エリート猫
+                            enemies.push(new Enemy('elite'));
+                        } else {
+                            enemies.push(new Enemy('normal'));
+                        }
                     }
                 }
             } else {
-                // ボス戦中は少しだけ雑魚も出す（邪魔キャラ）
-                if (frames % 120 === 0) {
-                    enemies.push(new Enemy());
+                if (frames % 120 === 0) enemies.push(new Enemy('normal'));
+                // ボス戦中も突進猫をたまに
+                if (frames % 180 === 0 && elapsedSeconds > 20) enemies.push(new Enemy('rush'));
+            }
+
+            // 敵弾の更新
+            for (let i = enemyBullets.length - 1; i >= 0; i--) {
+                enemyBullets[i].update();
+                enemyBullets[i].draw();
+                // 画面外or寿命切れ
+                if (enemyBullets[i].life <= 0 || enemyBullets[i].x < -50 || enemyBullets[i].x > canvas.width + 50 || enemyBullets[i].y < -50 || enemyBullets[i].y > canvas.height + 50) {
+                    enemyBullets.splice(i, 1); continue;
+                }
+                // プレイヤーとの当たり判定
+                const dx = player.x - enemyBullets[i].x, dy = player.y - enemyBullets[i].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < player.size / 2 + enemyBullets[i].size) {
+                    gameState = 'GAMEOVER';
+                    showResult();
+                    return;
                 }
             }
 
-            // Update enemies
+            // Enemies update & collision
             for (let i = enemies.length - 1; i >= 0; i--) {
-                enemies[i].update();
-                enemies[i].draw();
-
-                const dx = player.x - enemies[i].x;
-                const dy = player.y - enemies[i].y;
+                enemies[i].update(); enemies[i].draw();
+                const dx = player.x - enemies[i].x, dy = player.y - enemies[i].y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < (player.size / 2 + enemies[i].size / 2)) {
                     gameState = 'GAMEOVER';
-                    gameOverScreen.style.display = 'block';
+                    showResult();
+                    return;
                 }
+                // 壁に当たった敵も消えない（壁はプレイヤーだけ制限）
             }
 
-            // Update effects (words)
+            // Effects
             for (let i = effects.length - 1; i >= 0; i--) {
-                effects[i].update();
-                effects[i].draw();
+                effects[i].update(); effects[i].draw();
                 if (effects[i].life <= 0) effects.splice(i, 1);
             }
 
-            // Update texts (nya)
-            // for (let i = texts.length - 1; i >= 0; i--) {
-            //     texts[i].update();
-            //     texts[i].draw();
-            //     if (texts[i].life <= 0) texts.splice(i, 1);
-            // }
-
-            // Draw player
+            // Player draw
             if (playerImg.complete && playerImg.naturalWidth !== 0) {
                 ctx.save();
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.clip(); // 丸く切り抜く
+                ctx.beginPath(); ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
                 ctx.drawImage(playerImg, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
                 ctx.restore();
             } else {
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.beginPath();
+                ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2); ctx.fill();
             }
+
+            // オーバーヒートゲージ
+            drawHeatGauge();
 
             frames++;
             requestAnimationFrame(loop);
         }
 
-        // 初期描画（背景だけとりあえず出す）
+        // 初期背景
         bgImg.onload = () => {
             if (gameState === 'TITLE') {
-                const bgRatio = bgImg.width / bgImg.height;
-                const canvasRatio = canvas.width / canvas.height;
-                let drawW, drawH, drawX, drawY;
-                if (canvasRatio > bgRatio) {
-                    drawW = canvas.width;
-                    drawH = canvas.width / bgRatio;
-                    drawX = 0;
-                    drawY = (canvas.height - drawH) / 2;
-                } else {
-                    drawW = canvas.height * bgRatio;
-                    drawH = canvas.height;
-                    drawX = (canvas.width - drawW) / 2;
-                    drawY = 0;
-                }
-                ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
+                const r = bgImg.width / bgImg.height, cr = canvas.width / canvas.height;
+                let dW, dH, dX, dY;
+                if (cr > r) { dW = canvas.width; dH = canvas.width / r; dX = 0; dY = (canvas.height - dH) / 2; }
+                else { dW = canvas.height * r; dH = canvas.height; dX = (canvas.width - dW) / 2; dY = 0; }
+                ctx.drawImage(bgImg, dX, dY, dW, dH);
             }
         };
 
         window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            if (gameState !== 'GAMEOVER') {
-                player.x = canvas.width / 2;
-                player.y = canvas.height / 2;
-            }
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            if (gameState !== 'GAMEOVER') { player.x = canvas.width / 2; player.y = canvas.height / 2; }
         });
     </script>
 </body>
