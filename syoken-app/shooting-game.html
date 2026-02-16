@@ -7,6 +7,9 @@
     <title>逆襲のウサギ</title>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -527,9 +530,56 @@
             alone: "やっぱり、ひとりだった。"
         };
 
-        // ランキング
-        function getRanking(d) { try { const v = localStorage.getItem(`ranking_${d}`); return v ? JSON.parse(v) : []; } catch (e) { return []; } }
-        function saveRanking(d, e) { const r = getRanking(d); r.push(e); r.sort((a, b) => b.score - a.score); const t = r.slice(0, 10); localStorage.setItem(`ranking_${d}`, JSON.stringify(t)); return t; }
+        // ===== Firebase初期化 =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyBv0AE6vh3q478KnECzyClAfviYEUf42aQ",
+            authDomain: "usagi-no-gyakushu.firebaseapp.com",
+            databaseURL: "https://usagi-no-gyakushu-default-rtdb.firebaseio.com",
+            projectId: "usagi-no-gyakushu",
+            storageBucket: "usagi-no-gyakushu.firebasestorage.app",
+            messagingSenderId: "890613344404",
+            appId: "1:890613344404:web:bf78552cb4cdddfe7b2c81",
+            measurementId: "G-TF8JT9HF02"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ===== ランキング（Firebase Realtime Database） =====
+        async function getRanking(d) {
+            try {
+                const snapshot = await db.ref('ranking/' + d).orderByChild('score').limitToLast(10).once('value');
+                const data = snapshot.val();
+                if (!data) return [];
+                const arr = Object.values(data);
+                arr.sort((a, b) => b.score - a.score);
+                return arr;
+            } catch (e) {
+                console.error('Firebase読込エラー:', e);
+                return [];
+            }
+        }
+
+        async function saveRanking(d, entry) {
+            try {
+                await db.ref('ranking/' + d).push(entry);
+                const snapshot = await db.ref('ranking/' + d).orderByChild('score').once('value');
+                const data = snapshot.val();
+                if (data) {
+                    const entries = Object.entries(data);
+                    entries.sort((a, b) => b[1].score - a[1].score);
+                    if (entries.length > 10) {
+                        const deletes = entries.slice(10);
+                        for (const [key] of deletes) {
+                            await db.ref('ranking/' + d + '/' + key).remove();
+                        }
+                    }
+                }
+                return await getRanking(d);
+            } catch (e) {
+                console.error('Firebase保存エラー:', e);
+                return [];
+            }
+        }
 
         // ===== ゲーム状態 =====
         let gameState = 'TITLE';
@@ -630,9 +680,10 @@
             });
         }
 
-        function showRankingViewer(diff) {
+        async function showRankingViewer(diff) {
             const tbody = document.getElementById('ranking-viewer-body');
-            const ranking = getRanking(diff);
+            tbody.innerHTML = '<tr><td colspan="4" style="color:#555; padding:20px;">読み込み中...</td></tr>';
+            const ranking = await getRanking(diff);
             tbody.innerHTML = '';
             if (!ranking.length) { tbody.innerHTML = '<tr><td colspan="4" style="color:#555; padding:20px;">データなし</td></tr>'; return; }
             ranking.forEach((e, i) => {
@@ -645,16 +696,18 @@
 
         function esc(s) { const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
 
-        function showResult() {
+        async function showResult() {
             const title = getTitle(score);
             const entry = { name: playerName, score, title, date: new Date().toISOString() };
-            const ranking = saveRanking(difficulty, entry);
             document.getElementById('result-comment').textContent = gameOverComments[difficulty];
             document.getElementById('result-player-name').textContent = playerName;
             document.getElementById('result-player-title').textContent = `― ${title} ―`;
             document.getElementById('result-score-value').textContent = score;
             document.getElementById('result-difficulty-name').textContent = `難易度: ${difficultySettings[difficulty].name}`;
             const tbody = document.getElementById('result-ranking-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="color:#555; padding:20px;">保存中...</td></tr>';
+            resultScreen.style.display = 'block';
+            const ranking = await saveRanking(difficulty, entry);
             tbody.innerHTML = '';
             ranking.slice(0, 5).forEach((e, i) => {
                 const r = i + 1, tr = document.createElement('tr');
@@ -662,7 +715,6 @@
                 tr.innerHTML = `<td class="${getRankClass(r)}">${getRankName(r)}</td><td>${esc(e.name)}</td><td>${esc(e.title)}</td><td>${e.score}</td>`;
                 tbody.appendChild(tr);
             });
-            resultScreen.style.display = 'block';
         }
 
         // ===== 弾クラス =====
