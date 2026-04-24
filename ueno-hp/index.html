@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="三重県立上野高等学校 SSH（スーパーサイエンスハイスクール）- 歴史と科学が融合する、宇宙空間の学び舎">
+    <title>上野高等学校 SSH | The Cosmic School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- フルスクリーン3Dコンテナ -->
+    <div id="cosmos" class="cosmos">
+
+        <!-- ===== LAYER C: Z-Far (-300px) ===== -->
+        <div class="layer layer-far" id="layerFar">
+            <!-- ネオン桜キャンバス -->
+            <canvas id="sakuraCanvas" class="fullscreen-canvas"></canvas>
+
+            <!-- 中央校章ホログラム -->
+            <div class="hologram-container" id="hologramContainer">
+                <div class="hologram-emblem" id="hologramEmblem">
+                    <svg viewBox="0 0 200 200" class="emblem-svg">
+                        <!-- 校章: 五角形シールド + 上高 -->
+                        <defs>
+                            <filter id="hologramGlow">
+                                <feGaussianBlur stdDeviation="3" result="glow"/>
+                                <feMerge>
+                                    <feMergeNode in="glow"/>
+                                    <feMergeNode in="glow"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <polygon points="100,10 190,75 165,180 35,180 10,75" 
+                                 fill="none" stroke="currentColor" stroke-width="2" 
+                                 filter="url(#hologramGlow)"/>
+                        <polygon points="100,30 175,82 155,168 45,168 25,82" 
+                                 fill="none" stroke="currentColor" stroke-width="1.5"
+                                 filter="url(#hologramGlow)"/>
+                        <text x="100" y="95" text-anchor="middle" fill="currentColor" 
+                              font-family="'Noto Serif JP', serif" font-size="28" font-weight="900"
+                              filter="url(#hologramGlow)">上高</text>
+                        <text x="100" y="130" text-anchor="middle" fill="currentColor" 
+                              font-family="'Orbitron', sans-serif" font-size="14" font-weight="700"
+                              filter="url(#hologramGlow)">SSH</text>
+                    </svg>
+                </div>
+                <!-- データストリーム接続線 -->
+                <canvas id="dataStreamCanvas" class="fullscreen-canvas"></canvas>
+            </div>
+
+            <!-- いが☆グリオ AIペット -->
+            <div class="grio-pet" id="grioPet">
+                <img src="assets/grio_chemist.png" alt="いが☆グリオ - Mad Chemist" 
+                     class="grio-img grio-current" id="grioImgA">
+                <img src="assets/grio_scouter.png" alt="いが☆グリオ - Scouter" 
+                     class="grio-img" id="grioImgB">
+                <div class="grio-glitch-overlay" id="grioGlitch"></div>
+            </div>
+        </div>
+
+        <!-- ===== LAYER B: Z-Mid (0px) ===== -->
+        <div class="layer layer-mid" id="layerMid">
+            <!-- 明治校舎の浮遊城 — 天空の学び舎 -->
+            <div class="meiji-garden" id="meijiGarden">
+                <div class="meiji-floating-castle" id="meijiCastle">
+                    <img src="assets/meiji_floating.png" alt="浮遊する明治校舎 — 天空の学び舎" class="meiji-castle-img">
+                    <div class="castle-glow"></div>
+                </div>
+            </div>
+
+            <!-- 縦書きネオン明朝テキスト -->
+            <div class="neon-text-pillars">
+                <div class="neon-pillar" style="--pillar-x: 8%; --pillar-y: 15%; --delay: 0s;">
+                    <span>三重県立上野高等学校</span>
+                </div>
+                <div class="neon-pillar" style="--pillar-x: 88%; --pillar-y: 10%; --delay: 0.5s;">
+                    <span>質実剛健</span>
+                </div>
+                <div class="neon-pillar ssh-pillar" style="--pillar-x: 15%; --pillar-y: 60%; --delay: 1s;">
+                    <span>SSH</span>
+                </div>
+                <div class="neon-pillar" style="--pillar-x: 82%; --pillar-y: 55%; --delay: 1.5s;">
+                    <span>自重自愛</span>
+                </div>
+                <div class="neon-pillar long-pillar" style="--pillar-x: 50%; --pillar-y: 80%; --delay: 2s;">
+                    <span>スーパーサイエンスハイスクール</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== LAYER A: Z-Near (200px) ===== -->
+        <div class="layer layer-near" id="layerNear">
+            <!-- マウストレイル＆SSH科学パーティクルキャンバス -->
+            <canvas id="particleCanvas" class="fullscreen-canvas"></canvas>
+
+            <!-- 手裏剣型メニュー -->
+            <nav class="shuriken-nav" id="shurikenNav">
+                <button class="shuriken-btn" id="shurikenTL" data-corner="tl" aria-label="About">
+                    <svg viewBox="0 0 60 60" class="shuriken-svg">
+                        <polygon points="30,2 38,22 58,22 42,35 48,55 30,42 12,55 18,35 2,22 22,22" />
+                    </svg>
+                    <span class="shuriken-label">概要</span>
+                </button>
+                <button class="shuriken-btn" id="shurikenTR" data-corner="tr" aria-label="Research">
+                    <svg viewBox="0 0 60 60" class="shuriken-svg">
+                        <polygon points="30,2 38,22 58,22 42,35 48,55 30,42 12,55 18,35 2,22 22,22" />
+                    </svg>
+                    <span class="shuriken-label">研究</span>
+                </button>
+                <button class="shuriken-btn" id="shurikenBL" data-corner="bl" aria-label="History">
+                    <svg viewBox="0 0 60 60" class="shuriken-svg">
+                        <polygon points="30,2 38,22 58,22 42,35 48,55 30,42 12,55 18,35 2,22 22,22" />
+                    </svg>
+                    <span class="shuriken-label">歴史</span>
+                </button>
+                <button class="shuriken-btn" id="shurikenBR" data-corner="br" aria-label="Access">
+                    <svg viewBox="0 0 60 60" class="shuriken-svg">
+                        <polygon points="30,2 38,22 58,22 42,35 48,55 30,42 12,55 18,35 2,22 22,22" />
+                    </svg>
+                    <span class="shuriken-label">アクセス</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- スキャンライン オーバーレイ -->
+        <div class="scanlines"></div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
